@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/add_message_popup"
+        android:orderInCategory="1"
+        android:title="@string/new_message"/>
+    <item
+        android:id="@+id/clear_notes_popup"
+        android:orderInCategory="4"
+        android:title="@string/clear_notes" />
+    <item
+        android:id="@+id/clear_selection_popup"
+        android:orderInCategory="5"
+        android:title="@string/clear_selection" />
+</menu>
