@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/list_item_text"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_parent_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    style="@style/nonSelected">
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/cyan"
-        android:layout_marginTop="5dp"
-        android:textSize="20sp"
-        />
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:id="@+id/list_text_button"
+            style="@style/listItemButton"
+            android:contentDescription="@string/show_message"
+            android:src="@drawable/ic_arrow_drop_down_black_24dp"/>
+        <TextView
+            android:id="@+id/list_item_text"
+            style="@style/listItem"/>
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/list_item_message"
+        style="@style/listItemBody"
+        android:visibility="gone"/>
 
 </LinearLayout>

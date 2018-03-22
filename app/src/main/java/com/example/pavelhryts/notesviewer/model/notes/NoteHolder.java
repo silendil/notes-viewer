@@ -1,4 +1,4 @@
-package com.example.pavelhryts.notesviewer.model;
+package com.example.pavelhryts.notesviewer.model.notes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +47,10 @@ public class NoteHolder {
         if(i>=0 && i < notes.size())
             return notes.get(i);
         return null;
+    }
+
+    public boolean isEmty(){
+        return notes.isEmpty();
     }
 
     public void clearNotes(){

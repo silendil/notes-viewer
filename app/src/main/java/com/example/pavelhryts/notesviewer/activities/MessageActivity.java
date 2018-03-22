@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.pavelhryts.notesviewer.R;
-import com.example.pavelhryts.notesviewer.model.Note;
-import com.example.pavelhryts.notesviewer.model.NoteHolder;
+import com.example.pavelhryts.notesviewer.model.notes.Note;
+import com.example.pavelhryts.notesviewer.model.notes.NoteHolder;
 
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -52,9 +52,11 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 message.setBody(body.getText().toString());
                 if(newMessage)
                     NoteHolder.getInstance().addNote(message);
+                setResult(RESULT_OK);
                 finish();
                 break;
             case android.R.id.home:
+                setResult(RESULT_CANCELED);
                 finish();
                 break;
         }

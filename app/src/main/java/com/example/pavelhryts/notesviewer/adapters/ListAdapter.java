@@ -5,8 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.example.pavelhryts.notesviewer.model.Note;
-import com.example.pavelhryts.notesviewer.model.NoteHolder;
+import com.example.pavelhryts.notesviewer.model.notes.Note;
+import com.example.pavelhryts.notesviewer.model.notes.NoteHolder;
 
 /**
  * Created by Pavel.Hryts on 17.03.2018.
@@ -20,7 +20,7 @@ public abstract class ListAdapter extends RecyclerView.Adapter<ListViewHolder> i
 
     private ListViewHolder viewHolder;
 
-    public ListAdapter(Context appContext) {
+    protected ListAdapter(Context appContext) {
         this.appContext = appContext;
     }
 

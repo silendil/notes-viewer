@@ -1,4 +1,4 @@
-package com.example.pavelhryts.notesviewer.model;
+package com.example.pavelhryts.notesviewer.model.notes;
 
 import java.io.Serializable;
 

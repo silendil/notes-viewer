@@ -6,4 +6,8 @@ package com.example.pavelhryts.notesviewer.util;
 
 public class Consts {
     public static final String MESSAGE = "message";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
+    public static final String FRAGMENT_ID = "fragment_id";
+    public final static String SHARED_NAME = "LOCAL_FILE";
 }

@@ -13,4 +13,23 @@
     <string name="clear_notes">Clear notes</string>
     <string name="delete_message">delete message</string>
     <string name="clear_selection">Clear selection</string>
+    <string name="owner">Pavel Hryts</string>
+    <string name="owner_email">silendil@yandex.ru</string>
+    <string name="show_message">show message</string>
+    <string name="empty">EMPTY</string>
+    <string name="notes">Notes</string>
+    <string name="about">about</string>
+    <string name="navigation">Navigation</string>
+    <string name="places">Places</string>
+    <string name="test_caption">Test android application</string>
+    <string name="written_by">Written by Pavel Hryts, 2018</string>
+    <string name="google_maps_key">AIzaSyCsq_P1fPEMokRT2NbmazZ6EeKEnJgpLZ0</string>
+    <string name="my_position">My position</string>
+    <string name="add_new_place">Add new place</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
+    <string name="title">Title:</string>
+    <string name="input_title">eneter title</string>
+    <string name="submit">Submit</string>
+    <string name="new_marker">add new marker</string>
 </resources>
