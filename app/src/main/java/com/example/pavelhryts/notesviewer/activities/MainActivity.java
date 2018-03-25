@@ -14,6 +14,7 @@ import android.view.View;
 
 import com.example.pavelhryts.notesviewer.R;
 import com.example.pavelhryts.notesviewer.fragments.AboutFragment;
+import com.example.pavelhryts.notesviewer.fragments.FeedbackFragment;
 import com.example.pavelhryts.notesviewer.fragments.ListFragment;
 import com.example.pavelhryts.notesviewer.fragments.PlacesFragment;
 
@@ -122,6 +123,14 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_places:
                 initPlaces();
                 break;
+            case R.id.nav_feedback:
+                initFeedback();
+                break;
         }
+    }
+
+    private void initFeedback() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_container,new FeedbackFragment()).commit();
+        fab.setVisibility(View.INVISIBLE);
     }
 }

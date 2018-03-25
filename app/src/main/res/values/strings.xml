@@ -18,7 +18,7 @@
     <string name="show_message">show message</string>
     <string name="empty">EMPTY</string>
     <string name="notes">Notes</string>
-    <string name="about">about</string>
+    <string name="about">About</string>
     <string name="navigation">Navigation</string>
     <string name="places">Places</string>
     <string name="test_caption">Test android application</string>
@@ -29,7 +29,20 @@
     <string name="latitude">Latitude:</string>
     <string name="longitude">Longitude:</string>
     <string name="title">Title:</string>
-    <string name="input_title">eneter title</string>
+    <string name="input_title">enter title</string>
     <string name="submit">Submit</string>
     <string name="new_marker">add new marker</string>
+    <string name="weather_key">ec193a077d0f4f21e01a2e865af58e77</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="feedback_title">Input your message</string>
+    <string name="send">Send message</string>
+    <string name="feedback">Feedback</string>
+    <string name="location">Location:</string>
+    <string name="weather_string">Weather:</string>
+    <string name="temp">Temperature:</string>
+    <string name="press">Pressure:</string>
+    <string name="press_units">hPa</string>
+    <string name="weather_not_found">Weather data not found</string>
 </resources>
