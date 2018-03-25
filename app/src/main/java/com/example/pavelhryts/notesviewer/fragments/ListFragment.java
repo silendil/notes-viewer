@@ -197,6 +197,13 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         menu.show();
     }
 
+    @Override
+    public void onStop() {
+        if(locationListener != null)
+            locationManager.removeUpdates(locationListener);
+        super.onStop();
+    }
+
     public void updateView() {
         list.getAdapter().notifyDataSetChanged();
         updateMenuView();
