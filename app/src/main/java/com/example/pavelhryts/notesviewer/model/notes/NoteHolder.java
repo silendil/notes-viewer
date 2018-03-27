@@ -21,6 +21,10 @@ public class NoteHolder {
         return instance;
     }
 
+    public void setNotes(List<Note> notes){
+        this.notes = notes;
+    }
+
     private List<Note> notes = new ArrayList<>();
 
     public List<Note> getNotes() {

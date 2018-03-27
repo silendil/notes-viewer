@@ -9,7 +9,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -32,7 +34,13 @@ import com.example.pavelhryts.notesviewer.model.notes.Note;
 import com.example.pavelhryts.notesviewer.model.notes.NoteHolder;
 import com.example.pavelhryts.notesviewer.model.weather.WeatherModel;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
 import retrofit2.Call;
@@ -55,6 +63,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     private Menu optionMenu;
     private String city;
     private final String SEPARATOR = "; ";
+    private final String FILENAME = "Notes.sav";
+    private final String DOCUMENTS = "/Documents";
 
     private LocationListener locationListener;
     private LocationManager locationManager;
@@ -83,6 +93,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         init(view);
         initLocation();
         weatherInit(view);
+        loadNotes();
         return view;
     }
 
@@ -105,8 +116,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         checkListVisibility();
     }
 
-    private void initLocation(){
-        if(locationManager == null)
+    private void initLocation() {
+        if (locationManager == null)
             locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
     }
 
@@ -125,39 +136,39 @@ public class ListFragment extends Fragment implements View.OnClickListener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(list != null && !list.isEmpty()){
+            if (list != null && !list.isEmpty()) {
                 Address address = list.get(0);
-                city = String.format("%s, %s", address.getLocality(),address.getCountryName());
+                city = String.format("%s, %s", address.getLocality(), address.getCountryName());
             }
-            App.getApi().getData(getString(R.string.weather_key),loc.getLatitude(),loc.getLongitude())
+            App.getApi().getData(getString(R.string.weather_key), loc.getLatitude(), loc.getLongitude())
                     .enqueue(new Callback<WeatherModel>() {
-                @Override
-                public void onResponse(Call<WeatherModel> call, Response<WeatherModel> response) {
-                    if(response.isSuccessful()){
-                        StringBuilder builder = new StringBuilder();
-                        if(response.body()!=null) {
-                            WeatherModel model = response.body();
-                            if(city.isEmpty())
-                                city = model.getName();
-                            builder.append(getString(R.string.location)).append(city).append(SEPARATOR)
-                                    .append(getString(R.string.weather_string)).append(model.getWeather().get(0).getDescription())
-                                    .append(SEPARATOR)
-                                    .append(getString(R.string.temp)).append(model.getMain().getTemp()).append("\u2103")
-                                    .append(SEPARATOR)
-                                    .append(getString(R.string.press)).append(model.getMain().getPressure())
-                                    .append(getString(R.string.press_units));
-                        }else{
-                            builder.append(getString(R.string.weather_not_found));
+                        @Override
+                        public void onResponse(Call<WeatherModel> call, Response<WeatherModel> response) {
+                            if (response.isSuccessful()) {
+                                StringBuilder builder = new StringBuilder();
+                                if (response.body() != null) {
+                                    WeatherModel model = response.body();
+                                    if (city.isEmpty())
+                                        city = model.getName();
+                                    builder.append(getString(R.string.location)).append(city).append(SEPARATOR)
+                                            .append(getString(R.string.weather_string)).append(model.getWeather().get(0).getDescription())
+                                            .append(SEPARATOR)
+                                            .append(getString(R.string.temp)).append(model.getMain().getTemp()).append("\u2103")
+                                            .append(SEPARATOR)
+                                            .append(getString(R.string.press)).append(model.getMain().getPressure())
+                                            .append(getString(R.string.press_units));
+                                } else {
+                                    builder.append(getString(R.string.weather_not_found));
+                                }
+                                weatherView.setText(builder.toString());
+                            }
                         }
-                        weatherView.setText(builder.toString());
-                    }
-                }
 
-                @Override
-                public void onFailure(Call<WeatherModel> call, Throwable t) {
-                    weatherView.setText(R.string.weather_not_found);
-                }
-            });
+                        @Override
+                        public void onFailure(Call<WeatherModel> call, Throwable t) {
+                            weatherView.setText(R.string.weather_not_found);
+                        }
+                    });
 
         }
     }
@@ -199,7 +210,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onStop() {
-        if(locationListener != null)
+        if (locationListener != null)
             locationManager.removeUpdates(locationListener);
         super.onStop();
     }
@@ -221,6 +232,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
         noteHolder.selectNone();
         updateView();
+        saveNotes();
     }
 
     @Override
@@ -318,6 +330,75 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         noteHolder.removeNote(id);
         noteHolder.selectNone();
         updateView();
+    }
+
+    private boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    private boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+    }
+
+    private void saveNotes() {
+        String filename = getPath();
+        File file;
+        try{
+            file = new File(filename);
+            FileOutputStream fos;
+            ObjectOutputStream oos;
+            if(!file.exists())
+                file.createNewFile();
+            fos = new FileOutputStream(file, false);
+            oos = new ObjectOutputStream(fos);
+            oos.writeObject(noteHolder.getNotes());
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    private void loadNotes(){
+        String filename = getPath();
+        File file;
+        try{
+            file = new File(filename);
+            FileInputStream fis;
+            ObjectInputStream ois;
+            if(file.exists()){
+                fis = new FileInputStream(file);
+                ois = new ObjectInputStream(fis);
+                Object obj = ois.readObject();
+                if(obj instanceof List && !((List) obj).isEmpty() && ((List) obj).get(0) instanceof Note){
+                    noteHolder.setNotes((List<Note>)obj);
+                }
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+
+    private String getPath(){
+        String path;
+        if (isExternalStorageWritable()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                path = getActivity().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+                        + "/" + FILENAME;
+            } else {
+                File docsFolder = new File(Environment.getExternalStorageDirectory() + DOCUMENTS);
+                if (!docsFolder.exists())
+                    docsFolder.mkdir();
+                path = docsFolder.getPath() + "/" + FILENAME;
+            }
+        } else {
+            path = getActivity().getFilesDir() + "/" + FILENAME;
+        }
+        return path;
+    }
+
+    private void saveToFile(String filename) {
+
     }
 
     private class LocListener implements LocationListener {
