@@ -120,11 +120,11 @@ public class ListFragment extends Fragment implements View.OnClickListener {
             locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
     }
 
-    private void updateCity(Location loc){
+    private void updateCity(Location loc) {
         Geocoder geocoder = new Geocoder(getContext());
         List<Address> list = null;
         try {
-            if(loc != null)
+            if (loc != null)
                 list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,27 +146,30 @@ public class ListFragment extends Fragment implements View.OnClickListener {
                 initLocation();
             Location loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             updateCity(loc);
-            App.getApi().getData(getString(R.string.weather_key), loc.getLatitude(), loc.getLongitude())
-                    .enqueue(new Callback<WeatherModel>() {
-                        @Override
-                        public void onResponse(Call<WeatherModel> call, Response<WeatherModel> response) {
-                            String result = getString(R.string.weather_not_found);
-                            if (response.isSuccessful()) {
-                                result = getWeatherString(response.body());
+            if (loc != null)
+                App.getApi().getData(getString(R.string.weather_key), loc.getLatitude(), loc.getLongitude())
+                        .enqueue(new Callback<WeatherModel>() {
+                            @Override
+                            public void onResponse(Call<WeatherModel> call, Response<WeatherModel> response) {
+                                String result = getString(R.string.weather_not_found);
+                                if (response.isSuccessful()) {
+                                    result = getWeatherString(response.body());
+                                }
+                                weatherView.setText(result);
                             }
-                            weatherView.setText(result);
-                        }
 
-                        @Override
-                        public void onFailure(Call<WeatherModel> call, Throwable t) {
-                            weatherView.setText(R.string.weather_not_found);
-                        }
-                    });
+                            @Override
+                            public void onFailure(Call<WeatherModel> call, Throwable t) {
+                                weatherView.setText(R.string.weather_not_found);
+                            }
+                        });
+            else
+                weatherView.setText(R.string.weather_not_found);
 
         }
     }
 
-    private String getWeatherString(WeatherModel model){
+    private String getWeatherString(WeatherModel model) {
         StringBuilder builder = new StringBuilder();
         if (model != null) {
             if (city.isEmpty())
@@ -222,7 +225,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getActivity().getMenuInflater().inflate(R.menu.context_menu,menu);
+        getActivity().getMenuInflater().inflate(R.menu.context_menu, menu);
     }
 
     @Override
@@ -364,41 +367,41 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     private void saveNotes() {
         String filename = getPath();
         File file;
-        try{
+        try {
             file = new File(filename);
             FileOutputStream fos;
             ObjectOutputStream oos;
-            if(!file.exists())
+            if (!file.exists())
                 file.createNewFile();
             fos = new FileOutputStream(file, false);
             oos = new ObjectOutputStream(fos);
             oos.writeObject(noteHolder.getNotes());
-        }catch (IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void loadNotes(){
+    private void loadNotes() {
         String filename = getPath();
         File file;
-        try{
+        try {
             file = new File(filename);
             FileInputStream fis;
             ObjectInputStream ois;
-            if(file.exists()){
+            if (file.exists()) {
                 fis = new FileInputStream(file);
                 ois = new ObjectInputStream(fis);
                 Object obj = ois.readObject();
-                if(obj instanceof List && !((List) obj).isEmpty() && ((List) obj).get(0) instanceof Note){
-                    noteHolder.setNotes((List<Note>)obj);
+                if (obj instanceof List && !((List) obj).isEmpty() && ((List) obj).get(0) instanceof Note) {
+                    noteHolder.setNotes((List<Note>) obj);
                 }
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private String getPath(){
+    private String getPath() {
         String path;
         if (isExternalStorageWritable()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
