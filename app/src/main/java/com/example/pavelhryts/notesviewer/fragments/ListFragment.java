@@ -1,7 +1,6 @@
 package com.example.pavelhryts.notesviewer.fragments;
 
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -18,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +36,6 @@ import com.example.pavelhryts.notesviewer.model.weather.WeatherModel;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -90,10 +89,10 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.list_fragment, container, false);
+        loadNotes();
         init(view);
         initLocation();
         weatherInit(view);
-        loadNotes();
         return view;
     }
 
@@ -121,6 +120,20 @@ public class ListFragment extends Fragment implements View.OnClickListener {
             locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
     }
 
+    private void updateCity(Location loc){
+        Geocoder geocoder = new Geocoder(getContext());
+        List<Address> list = null;
+        try {
+            list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (list != null && !list.isEmpty()) {
+            Address address = list.get(0);
+            city = String.format("%s, %s", address.getLocality(), address.getCountryName());
+        }
+    }
+
     private void weatherInit(View view) {
         final TextView weatherView = view.findViewById(R.id.weather_view);
         weatherView.setSelected(true);
@@ -129,39 +142,16 @@ public class ListFragment extends Fragment implements View.OnClickListener {
                 && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             Location loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-            Geocoder geocoder = new Geocoder(getContext());
-            List<Address> list = null;
-            try {
-                list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (list != null && !list.isEmpty()) {
-                Address address = list.get(0);
-                city = String.format("%s, %s", address.getLocality(), address.getCountryName());
-            }
+            updateCity(loc);
             App.getApi().getData(getString(R.string.weather_key), loc.getLatitude(), loc.getLongitude())
                     .enqueue(new Callback<WeatherModel>() {
                         @Override
                         public void onResponse(Call<WeatherModel> call, Response<WeatherModel> response) {
+                            String result = getString(R.string.weather_not_found);
                             if (response.isSuccessful()) {
-                                StringBuilder builder = new StringBuilder();
-                                if (response.body() != null) {
-                                    WeatherModel model = response.body();
-                                    if (city.isEmpty())
-                                        city = model.getName();
-                                    builder.append(getString(R.string.location)).append(city).append(SEPARATOR)
-                                            .append(getString(R.string.weather_string)).append(model.getWeather().get(0).getDescription())
-                                            .append(SEPARATOR)
-                                            .append(getString(R.string.temp)).append(model.getMain().getTemp()).append("\u2103")
-                                            .append(SEPARATOR)
-                                            .append(getString(R.string.press)).append(model.getMain().getPressure())
-                                            .append(getString(R.string.press_units));
-                                } else {
-                                    builder.append(getString(R.string.weather_not_found));
-                                }
-                                weatherView.setText(builder.toString());
+                                result = getWeatherString(response.body());
                             }
+                            weatherView.setText(result);
                         }
 
                         @Override
@@ -173,8 +163,26 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    private String getWeatherString(WeatherModel model){
+        StringBuilder builder = new StringBuilder();
+        if (model != null) {
+            if (city.isEmpty())
+                city = model.getName();
+            builder.append(getString(R.string.location)).append(city).append(SEPARATOR)
+                    .append(getString(R.string.weather_string)).append(model.getWeather().get(0).getDescription())
+                    .append(SEPARATOR)
+                    .append(getString(R.string.temp)).append(model.getMain().getIntTemp()).append("\u2103")
+                    .append(SEPARATOR)
+                    .append(getString(R.string.press)).append(model.getMain().getPressure())
+                    .append(getString(R.string.press_units));
+        } else {
+            builder.append(getString(R.string.weather_not_found));
+        }
+        return builder.toString();
+    }
+
     private void checkListVisibility() {
-        if (noteHolder.isEmty()) {
+        if (noteHolder.isEmpty()) {
             list.setVisibility(View.INVISIBLE);
             emptyMessage.setVisibility(View.VISIBLE);
         } else {
@@ -209,6 +217,12 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getActivity().getMenuInflater().inflate(R.menu.context_menu,menu);
+    }
+
+    @Override
     public void onStop() {
         if (locationListener != null)
             locationManager.removeUpdates(locationListener);
@@ -216,6 +230,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     }
 
     public void updateView() {
+        saveNotes();
         list.getAdapter().notifyDataSetChanged();
         updateMenuView();
         checkListVisibility();
@@ -232,7 +247,6 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
         noteHolder.selectNone();
         updateView();
-        saveNotes();
     }
 
     @Override
@@ -272,6 +286,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         if (optionMenu != null) {
             if (noteHolder.getSelectedNotesCount() > 0) {
                 optionMenu.getItem(2).setVisible(true);
+                optionMenu.getItem(4).setVisible(true);
                 if (noteHolder.getSelectedNotesCount() == 1) {
                     optionMenu.getItem(1).setVisible(true);
                 } else {
@@ -281,6 +296,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
             if (noteHolder.getSelectedNotesCount() == 0) {
                 optionMenu.getItem(1).setVisible(false);
                 optionMenu.getItem(2).setVisible(false);
+                optionMenu.getItem(4).setVisible(false);
             }
         }
     }
@@ -405,7 +421,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
 
         @Override
         public void onLocationChanged(Location location) {
-
+            updateCity(location);
         }
 
         @Override

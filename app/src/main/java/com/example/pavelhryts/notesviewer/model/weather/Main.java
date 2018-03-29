@@ -8,7 +8,7 @@ public class Main {
 
     @SerializedName("temp")
     @Expose
-    private Integer temp;
+    private Double temp;
     @SerializedName("pressure")
     @Expose
     private Integer pressure;
@@ -17,17 +17,17 @@ public class Main {
     private Integer humidity;
     @SerializedName("temp_min")
     @Expose
-    private Integer tempMin;
+    private Double tempMin;
     @SerializedName("temp_max")
     @Expose
-    private Integer tempMax;
+    private Double tempMax;
 
-    public Integer getTemp() {
-        return temp;
+    public Integer getIntTemp() {
+        return temp.intValue();
     }
 
     public void setTemp(Integer temp) {
-        this.temp = temp;
+        this.temp = (double)temp;
     }
 
     public Integer getPressure() {
@@ -46,20 +46,20 @@ public class Main {
         this.humidity = humidity;
     }
 
-    public Integer getTempMin() {
-        return tempMin;
+    public Integer getIntTempMin() {
+        return tempMin.intValue();
     }
 
     public void setTempMin(Integer tempMin) {
-        this.tempMin = tempMin;
+        this.tempMin = (double)tempMin;
     }
 
     public Integer getTempMax() {
-        return tempMax;
+        return tempMax.intValue();
     }
 
     public void setTempMax(Integer tempMax) {
-        this.tempMax = tempMax;
+        this.tempMax = (double)tempMax;
     }
 
 }

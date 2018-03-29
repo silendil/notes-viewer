@@ -93,6 +93,7 @@ public abstract class ListViewHolder extends RecyclerView.ViewHolder implements 
     @Override
     public boolean onLongClick(View view) {
         getPushedItem(note);
+        setSelected(note.isSelected());
         return false;
     }
 

@@ -39,10 +39,10 @@
     <string name="feedback_title">Input your message</string>
     <string name="send">Send message</string>
     <string name="feedback">Feedback</string>
-    <string name="location">Location:</string>
-    <string name="weather_string">Weather:</string>
-    <string name="temp">Temperature:</string>
-    <string name="press">Pressure:</string>
+    <string name="location">Location: </string>
+    <string name="weather_string">Weather: </string>
+    <string name="temp">Temperature: </string>
+    <string name="press">Pressure: </string>
     <string name="press_units">hPa</string>
     <string name="weather_not_found">Weather data not found</string>
 </resources>

@@ -22,7 +22,7 @@ public class NoteHolder {
     }
 
     public void setNotes(List<Note> notes){
-        this.notes = notes;
+        this.notes = new ArrayList<>(notes);
     }
 
     private List<Note> notes = new ArrayList<>();
@@ -53,7 +53,7 @@ public class NoteHolder {
         return null;
     }
 
-    public boolean isEmty(){
+    public boolean isEmpty(){
         return notes.isEmpty();
     }
 
