@@ -60,7 +60,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     private TextView emptyMessage;
     private int pushedItemId;
     private Menu optionMenu;
-    private String city;
+    private String city = "";
     private final String SEPARATOR = "; ";
     private final String FILENAME = "Notes.sav";
     private final String DOCUMENTS = "/Documents";
@@ -124,7 +124,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         Geocoder geocoder = new Geocoder(getContext());
         List<Address> list = null;
         try {
-            list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+            if(loc != null)
+                list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -141,6 +142,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
                 == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+            if (locationManager == null)
+                initLocation();
             Location loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             updateCity(loc);
             App.getApi().getData(getString(R.string.weather_key), loc.getLatitude(), loc.getLongitude())
