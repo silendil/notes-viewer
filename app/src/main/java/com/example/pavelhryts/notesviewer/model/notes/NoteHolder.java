@@ -1,5 +1,7 @@
 package com.example.pavelhryts.notesviewer.model.notes;
 
+import com.example.pavelhryts.notesviewer.model.db.NotesTable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,12 +15,23 @@ public class NoteHolder {
     private NoteHolder() {
     }
 
+    private NotesTable notesTable = NotesTable.getInstance();
+
     private static volatile NoteHolder instance;
 
     public synchronized static NoteHolder getInstance(){
         if(instance == null)
             instance = new NoteHolder();
         return instance;
+    }
+
+    public void initNotesFromDB(){
+        notes = notesTable.getAll();
+    }
+
+    public void initDB(){
+        for(Note note : notes)
+            notesTable.edit(note);
     }
 
     public void setNotes(List<Note> notes){
@@ -32,14 +45,20 @@ public class NoteHolder {
     }
 
     public void addNote(Note note) {
+        notesTable.add(note);
         notes.add(note);
     }
 
     public void removeNote(int index) {
+        Note note = getNote(index);
+        notesTable.delete(note);
         notes.remove(index);
     }
 
     public void removeNotes(List<Note> forDelete) {
+        for(Note note : forDelete){
+            notesTable.delete(note);
+        }
         notes.removeAll(forDelete);
     }
 
@@ -58,6 +77,7 @@ public class NoteHolder {
     }
 
     public void clearNotes(){
+        notesTable.deleteAll();
         notes.clear();
     }
 

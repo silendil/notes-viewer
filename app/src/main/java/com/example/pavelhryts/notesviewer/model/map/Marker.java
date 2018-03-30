@@ -1,10 +1,12 @@
 package com.example.pavelhryts.notesviewer.model.map;
 
+import com.example.pavelhryts.notesviewer.model.BaseModel;
+
 /**
  * Created by Pavel.Hryts on 22.03.2018.
  */
 
-public class Marker {
+public class Marker extends BaseModel{
     private double latitude;
     private double longitude;
     private String title;
@@ -39,4 +41,12 @@ public class Marker {
         this.longitude = longitude;
         this.title = title;
     }
+
+    public Marker(double latitude, double longitude, String title, long id) {
+        super(id);
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.title = title;
+    }
+
 }

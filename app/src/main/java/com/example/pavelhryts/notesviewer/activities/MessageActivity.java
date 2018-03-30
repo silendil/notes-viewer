@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.pavelhryts.notesviewer.R;
+import com.example.pavelhryts.notesviewer.model.db.NotesTable;
 import com.example.pavelhryts.notesviewer.model.notes.Note;
 import com.example.pavelhryts.notesviewer.model.notes.NoteHolder;
 
@@ -52,6 +53,8 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 message.setBody(body.getText().toString());
                 if(newMessage)
                     NoteHolder.getInstance().addNote(message);
+                else
+                    NotesTable.getInstance().edit(message);
                 setResult(RESULT_OK);
                 finish();
                 break;

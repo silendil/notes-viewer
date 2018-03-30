@@ -1,6 +1,7 @@
 package com.example.pavelhryts.notesviewer.activities;
 
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -17,6 +18,9 @@ import com.example.pavelhryts.notesviewer.fragments.AboutFragment;
 import com.example.pavelhryts.notesviewer.fragments.FeedbackFragment;
 import com.example.pavelhryts.notesviewer.fragments.ListFragment;
 import com.example.pavelhryts.notesviewer.fragments.PlacesFragment;
+import com.example.pavelhryts.notesviewer.model.db.DatabaseHelper;
+import com.example.pavelhryts.notesviewer.model.db.MarkerTable;
+import com.example.pavelhryts.notesviewer.model.db.NotesTable;
 
 import static com.example.pavelhryts.notesviewer.util.Consts.FRAGMENT_ID;
 import static com.example.pavelhryts.notesviewer.util.Consts.SHARED_NAME;
@@ -38,12 +42,20 @@ public class MainActivity extends AppCompatActivity
 
         sp = getSharedPreferences(SHARED_NAME, MODE_PRIVATE);
 
+        initDB();
+
         initFAB();
         initDrawer();
         initNavigationView();
 
         fragmentId = sp.getInt(FRAGMENT_ID, R.id.nav_notes);
         selectFragment();
+    }
+
+    private void initDB(){
+        SQLiteDatabase database = new DatabaseHelper(getApplicationContext()).getWritableDatabase();
+        NotesTable.getInstance().initDatabase(database);
+        MarkerTable.getInstance().initDatabase(database);
     }
 
     private void initList(){

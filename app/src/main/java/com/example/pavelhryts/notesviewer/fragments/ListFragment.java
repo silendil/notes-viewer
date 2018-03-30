@@ -1,7 +1,11 @@
 package com.example.pavelhryts.notesviewer.fragments;
 
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,6 +15,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -64,6 +69,10 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     private final String SEPARATOR = "; ";
     private final String FILENAME = "Notes.sav";
     private final String DOCUMENTS = "/Documents";
+    private boolean permissions = false;
+
+    private final static String SHARED_NAME = "LIST_FRAGMENT";
+    private final static String PERMISSIONS = "PERMISSIONS";
 
     private LocationListener locationListener;
     private LocationManager locationManager;
@@ -72,28 +81,57 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         // Required empty public constructor
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onResume() {
         super.onResume();
+        SharedPreferences sf = getContext().getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE);
+        permissions = sf.getBoolean(PERMISSIONS, false);
         if (locationListener == null)
             locationListener = new LocListener();
-        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED)
+        if (locationManager == null)
+            initLocation();
+        if (permissions) {
             locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER,
                     3000L, 1.0F, locationListener);
+            weatherInit(getView());
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.list_fragment, container, false);
-        loadNotes();
+        noteHolder.initNotesFromDB();
         init(view);
-        initLocation();
-        weatherInit(view);
+        checkPermissions();
         return view;
+    }
+
+    private void checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && !permissions) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        this.permissions = permissions.length != 0;
+        if (requestCode == 100) {
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED)
+                    this.permissions = false;
+            }
+        }
+        initLocation();
+        weatherInit(getView());
+        SharedPreferences sp = getContext().getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE);
+        sp.edit().putBoolean(PERMISSIONS, this.permissions).apply();
     }
 
     private void init(View view) {
@@ -116,37 +154,38 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initLocation() {
-        if (locationManager == null)
-            locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+        if (permissions) {
+            if (locationManager == null)
+                locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+        }
     }
 
     private void updateCity(Location loc) {
-        Geocoder geocoder = new Geocoder(getContext());
-        List<Address> list = null;
-        try {
-            if (loc != null)
-                list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (list != null && !list.isEmpty()) {
-            Address address = list.get(0);
-            city = String.format("%s, %s", address.getLocality(), address.getCountryName());
+        if (permissions) {
+            Geocoder geocoder = new Geocoder(getContext());
+            List<Address> list = null;
+            try {
+                if (loc != null)
+                    list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (list != null && !list.isEmpty()) {
+                Address address = list.get(0);
+                city = String.format("%s, %s", address.getLocality(), address.getCountryName());
+            }
         }
     }
 
     private void weatherInit(View view) {
         final TextView weatherView = view.findViewById(R.id.weather_view);
         weatherView.setSelected(true);
-        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            if (locationManager == null)
-                initLocation();
-            Location loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        if (locationManager == null)
+            initLocation();
+        if (permissions) {
+            @SuppressLint("MissingPermission") Location loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             updateCity(loc);
-            if (loc != null)
+            if (loc != null) {
                 App.getApi().getData(getString(R.string.weather_key), loc.getLatitude(), loc.getLongitude())
                         .enqueue(new Callback<WeatherModel>() {
                             @Override
@@ -163,9 +202,10 @@ public class ListFragment extends Fragment implements View.OnClickListener {
                                 weatherView.setText(R.string.weather_not_found);
                             }
                         });
-            else
+            } else
                 weatherView.setText(R.string.weather_not_found);
-
+        } else {
+            weatherView.setText(R.string.weather_not_found);
         }
     }
 
@@ -230,13 +270,12 @@ public class ListFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onStop() {
-        if (locationListener != null)
+        if (locationListener != null && locationManager != null)
             locationManager.removeUpdates(locationListener);
         super.onStop();
     }
 
     public void updateView() {
-        saveNotes();
         list.getAdapter().notifyDataSetChanged();
         updateMenuView();
         checkListVisibility();
@@ -419,15 +458,12 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         return path;
     }
 
-    private void saveToFile(String filename) {
-
-    }
-
     private class LocListener implements LocationListener {
 
         @Override
         public void onLocationChanged(Location location) {
             updateCity(location);
+            weatherInit(getView());
         }
 
         @Override

@@ -1,17 +1,26 @@
 package com.example.pavelhryts.notesviewer.model.notes;
 
-import java.io.Serializable;
+import com.example.pavelhryts.notesviewer.model.BaseModel;
+
 
 /**
  * Created by Pavel.Hryts on 16.03.2018.
  */
 
-public class Note implements Serializable {
+public class Note extends BaseModel {
     private String title;
     private String body;
+
+
     private boolean selected = false;
 
     public Note(String title, String body) {
+        this.title = title;
+        this.body = body;
+    }
+
+    public Note(String title, String body, long id) {
+        super(id);
         this.title = title;
         this.body = body;
     }

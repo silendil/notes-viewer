@@ -122,6 +122,7 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
             mMap.getUiSettings().setZoomControlsEnabled(true);
         }
+        mapHolder.initMarkersFromDB();
         for (Marker marker : mapHolder.getMarkers()) {
             LatLng latLng = new LatLng(marker.getLatitude(), marker.getLongitude());
             MarkerOptions makerOptions = new MarkerOptions().position(latLng).title(marker.getTitle());
