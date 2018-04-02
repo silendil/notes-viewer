@@ -1,6 +1,6 @@
 package com.example.pavelhryts.notesviewer.model.map;
 
-import com.example.pavelhryts.notesviewer.model.db.MarkerTable;
+import com.example.pavelhryts.notesviewer.model.db.MarkerDAO;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +15,7 @@ public class MapHolder {
     private List<Marker> markers = new ArrayList<>();
     private static volatile MapHolder instance = null;
 
-    private MarkerTable markerTable = MarkerTable.getInstance();
+    private MarkerDAO markerDAO = MarkerDAO.getInstance();
 
     public static synchronized MapHolder getInstance(){
         if(instance == null)
@@ -28,7 +28,7 @@ public class MapHolder {
 
     public void addMarker(Marker marker){
         markers.add(marker);
-        markerTable.add(marker);
+        markerDAO.add(marker);
     }
 
     public Marker findMarker(double latitude, double longitude){
@@ -51,7 +51,7 @@ public class MapHolder {
     }
 
     public void initMarkersFromDB(){
-        markers = markerTable.getAllMarkers();
+        markers = markerDAO.getAll();
     }
 
     public boolean isEmpty(){
@@ -60,6 +60,6 @@ public class MapHolder {
 
     public void deleteMarker(Marker marker){
         markers.remove(marker);
-        markerTable.delete(marker);
+        markerDAO.delete(marker);
     }
 }

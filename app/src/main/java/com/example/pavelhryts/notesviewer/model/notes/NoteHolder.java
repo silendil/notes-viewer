@@ -1,6 +1,6 @@
 package com.example.pavelhryts.notesviewer.model.notes;
 
-import com.example.pavelhryts.notesviewer.model.db.NotesTable;
+import com.example.pavelhryts.notesviewer.model.db.NotesDAO;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +15,7 @@ public class NoteHolder {
     private NoteHolder() {
     }
 
-    private NotesTable notesTable = NotesTable.getInstance();
+    private NotesDAO notesDAO = NotesDAO.getInstance();
 
     private static volatile NoteHolder instance;
 
@@ -26,12 +26,12 @@ public class NoteHolder {
     }
 
     public void initNotesFromDB(){
-        notes = notesTable.getAll();
+        notes = notesDAO.getAll();
     }
 
     public void initDB(){
         for(Note note : notes)
-            notesTable.edit(note);
+            notesDAO.edit(note);
     }
 
     public void setNotes(List<Note> notes){
@@ -45,19 +45,19 @@ public class NoteHolder {
     }
 
     public void addNote(Note note) {
-        notesTable.add(note);
+        notesDAO.add(note);
         notes.add(note);
     }
 
     public void removeNote(int index) {
         Note note = getNote(index);
-        notesTable.delete(note);
+        notesDAO.delete(note);
         notes.remove(index);
     }
 
     public void removeNotes(List<Note> forDelete) {
         for(Note note : forDelete){
-            notesTable.delete(note);
+            notesDAO.delete(note);
         }
         notes.removeAll(forDelete);
     }
@@ -77,7 +77,7 @@ public class NoteHolder {
     }
 
     public void clearNotes(){
-        notesTable.deleteAll();
+        notesDAO.deleteAll();
         notes.clear();
     }
 

@@ -20,21 +20,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        if(!NotesTable.getInstance().isDatabaseExists())
-            NotesTable.getInstance().initDatabase(sqLiteDatabase);
-        if(!MarkerTable.getInstance().isDatabaseExists())
-            MarkerTable.getInstance().initDatabase(sqLiteDatabase);
-        NotesTable.getInstance().createTable();
-        MarkerTable.getInstance().createTable();
+        if(!NotesDAO.getInstance().isDatabaseExists())
+            NotesDAO.getInstance().initDatabase(sqLiteDatabase);
+        if(!MarkerDAO.getInstance().isDatabaseExists())
+            MarkerDAO.getInstance().initDatabase(sqLiteDatabase);
+        NotesDAO.getInstance().createTable();
+        MarkerDAO.getInstance().createTable();
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        if(!NotesTable.getInstance().isDatabaseExists())
-            NotesTable.getInstance().initDatabase(sqLiteDatabase);
-        if(!MarkerTable.getInstance().isDatabaseExists())
-            MarkerTable.getInstance().initDatabase(sqLiteDatabase);
-        NotesTable.getInstance().upgrade(i, i1);
-        MarkerTable.getInstance().upgrade(i, i1);
+        if(!NotesDAO.getInstance().isDatabaseExists())
+            NotesDAO.getInstance().initDatabase(sqLiteDatabase);
+        if(!MarkerDAO.getInstance().isDatabaseExists())
+            MarkerDAO.getInstance().initDatabase(sqLiteDatabase);
+        NotesDAO.getInstance().upgrade(i, i1);
+        MarkerDAO.getInstance().upgrade(i, i1);
     }
 }

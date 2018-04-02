@@ -2,7 +2,6 @@ package com.example.pavelhryts.notesviewer.model.db;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.example.pavelhryts.notesviewer.model.map.Marker;
 
@@ -13,35 +12,25 @@ import java.util.List;
  * Created by Pavel.Hryts on 30.03.2018.
  */
 
-public class MarkerTable extends BaseTable<Marker> {
+public class MarkerDAO extends BaseDAO<Marker> {
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_TITLE = "title";
     private static final String COLUMN_LONG = "longitude";
     private static final String COLUMN_LAT = "latitude";
     private static final String TABLE_NAME = "marker";
 
-    private SQLiteDatabase database;
-
     private static final String[] allColumns = {COLUMN_LAT, COLUMN_LONG, COLUMN_TITLE, COLUMN_ID};
 
-    private MarkerTable(){
+    private MarkerDAO(){
         super(TABLE_NAME);
     }
 
-    private volatile static MarkerTable instance;
+    private volatile static MarkerDAO instance;
 
-    public synchronized static MarkerTable getInstance(){
+    public synchronized static MarkerDAO getInstance(){
         if(instance == null)
-            instance = new MarkerTable();
+            instance = new MarkerDAO();
         return instance;
-    }
-
-    public boolean isDatabaseExists(){
-        return database != null;
-    }
-
-    public void initDatabase(SQLiteDatabase database){
-        this.database = database;
     }
 
     void createTable(){
@@ -53,8 +42,8 @@ public class MarkerTable extends BaseTable<Marker> {
     void upgrade(int oldVersion, int newVersion){
         if ((oldVersion == 1) && (newVersion == 2)) {
             String upgradeQuery = String.format("ALTER TABLE %s ADD COLUMN %s TEXT DEFAULT Title", TABLE_NAME, COLUMN_TITLE);
-            if(database != null)
-                database.execSQL(upgradeQuery);
+            if(getDatabase() != null)
+                getDatabase().execSQL(upgradeQuery);
         }
 
     }
@@ -88,15 +77,6 @@ public class MarkerTable extends BaseTable<Marker> {
     @Override
     String[] getAllColumns() {
         return new String[]{COLUMN_LAT, COLUMN_LONG, COLUMN_TITLE, COLUMN_ID};
-    }
-
-    public List<Marker> getAllMarkers(){
-        if(database != null){
-            Cursor cursor = database.query(TABLE_NAME, allColumns,null, null,
-                    null, null, null);
-            return getMarkersFromCursor(cursor);
-        }
-        return new ArrayList<>(0);
     }
 
     private List<Marker> getMarkersFromCursor(Cursor cursor){

@@ -12,15 +12,15 @@ import java.util.List;
  * Created by Pavel.Hryts on 30.03.2018.
  */
 
-public class NotesTable extends BaseTable<Note> {
+public class NotesDAO extends BaseDAO<Note> {
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_TITLE = "title";
     private static final String COLUMN_BODY = "body";
     private static final String TABLE_NAME = "notes";
 
-    private static volatile NotesTable instance;
+    private static volatile NotesDAO instance;
 
-    private NotesTable(){
+    private NotesDAO(){
         super(TABLE_NAME);
     }
 
@@ -54,9 +54,9 @@ public class NotesTable extends BaseTable<Note> {
         return new String[]{COLUMN_TITLE, COLUMN_BODY, COLUMN_ID};
     }
 
-    public synchronized static NotesTable getInstance(){
+    public synchronized static NotesDAO getInstance(){
         if (instance == null)
-            instance = new NotesTable();
+            instance = new NotesDAO();
         return instance;
     }
 

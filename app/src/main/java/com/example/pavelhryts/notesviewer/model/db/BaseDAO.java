@@ -14,7 +14,7 @@ import java.util.Locale;
  * Created by Pavel.Hryts on 30.03.2018.
  */
 
-public abstract class BaseTable<T extends BaseModel> {
+public abstract class BaseDAO<T extends BaseModel> {
 
     private static final String COLUMN_ID = "_id";
 
@@ -34,7 +34,7 @@ public abstract class BaseTable<T extends BaseModel> {
         return database;
     }
 
-    BaseTable(String tableName) {
+    BaseDAO(String tableName) {
 
         this.tableName = tableName;
     }

@@ -19,8 +19,8 @@ import com.example.pavelhryts.notesviewer.fragments.FeedbackFragment;
 import com.example.pavelhryts.notesviewer.fragments.ListFragment;
 import com.example.pavelhryts.notesviewer.fragments.PlacesFragment;
 import com.example.pavelhryts.notesviewer.model.db.DatabaseHelper;
-import com.example.pavelhryts.notesviewer.model.db.MarkerTable;
-import com.example.pavelhryts.notesviewer.model.db.NotesTable;
+import com.example.pavelhryts.notesviewer.model.db.MarkerDAO;
+import com.example.pavelhryts.notesviewer.model.db.NotesDAO;
 
 import static com.example.pavelhryts.notesviewer.util.Consts.FRAGMENT_ID;
 import static com.example.pavelhryts.notesviewer.util.Consts.SHARED_NAME;
@@ -54,8 +54,8 @@ public class MainActivity extends AppCompatActivity
 
     private void initDB(){
         SQLiteDatabase database = new DatabaseHelper(getApplicationContext()).getWritableDatabase();
-        NotesTable.getInstance().initDatabase(database);
-        MarkerTable.getInstance().initDatabase(database);
+        NotesDAO.getInstance().initDatabase(database);
+        MarkerDAO.getInstance().initDatabase(database);
     }
 
     private void initList(){
