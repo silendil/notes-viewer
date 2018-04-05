@@ -45,4 +45,9 @@
     <string name="press">Pressure: </string>
     <string name="press_units">hPa</string>
     <string name="weather_not_found">Weather data not found</string>
+    <string name="required">Field is required</string>
+    <string name="feedback_fragment_title">Feedback</string>
+    <string name="create_marker_title">Add new marker?</string>
+    <string name="positive">Yes</string>
+    <string name="negative">No</string>
 </resources>

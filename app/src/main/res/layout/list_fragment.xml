@@ -11,8 +11,11 @@
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         android:singleLine="true"
-        android:textSize="40dp"/>
-
+        android:textSize="40sp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@drawable/shadow"/>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

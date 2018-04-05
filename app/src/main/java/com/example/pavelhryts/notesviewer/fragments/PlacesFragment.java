@@ -97,6 +97,7 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
                              Bundle savedInstanceState) {
         mLocManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
         setupMapIfNeeded();
+        getActivity().setTitle(getString(R.string.places));
         return inflater.inflate(R.layout.fragment_places, container, false);
     }
 
@@ -148,13 +149,13 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
     @Override
     public void onMapLongClick(final LatLng latLng) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("Add new marker?");
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.create_marker_title);
+        builder.setPositiveButton(R.string.positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 showMarkerEditor(latLng);
             }
-        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+        }).setNegativeButton(R.string.negative, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 

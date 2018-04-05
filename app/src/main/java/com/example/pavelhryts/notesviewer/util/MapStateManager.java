@@ -38,7 +38,7 @@ public class MapStateManager {
         editor.putFloat(TILT, position.tilt);
         editor.putFloat(BEARING, position.bearing);
         editor.putInt(MAPTYPE, mapMie.getMapType());
-        editor.commit();
+        editor.apply();
     }
 
     public CameraPosition getSavedCameraPosition() {
@@ -53,8 +53,7 @@ public class MapStateManager {
         float bearing = mapStatePrefs.getFloat(BEARING, 0);
         float tilt = mapStatePrefs.getFloat(TILT, 0);
 
-        CameraPosition position = new CameraPosition(target, zoom, tilt, bearing);
-        return position;
+        return new CameraPosition(target, zoom, tilt, bearing);
     }
 
     public int getSavedMapType() {

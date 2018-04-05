@@ -70,6 +70,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     private final String FILENAME = "Notes.sav";
     private final String DOCUMENTS = "/Documents";
     private boolean permissions = false;
+    private ListAdapter listAdapter;
+    private LinearLayoutManager linearManager;
 
     private final static String SHARED_NAME = "LIST_FRAGMENT";
     private final static String PERMISSIONS = "PERMISSIONS";
@@ -105,6 +107,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         noteHolder.initNotesFromDB();
         init(view);
         checkPermissions();
+        getActivity().setTitle(getString(R.string.notes));
         return view;
     }
 
@@ -135,20 +138,22 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     }
 
     private void init(View view) {
-        list = view.findViewById(R.id.list_view);
-        emptyMessage = view.findViewById(R.id.empty_message);
-        list.setAdapter(new ListAdapter(getContext()) {
-            @Override
-            public void onSelect(Note note) {
-                updateMenuView();
-            }
-
+        listAdapter = new ListAdapter(getContext()) {
             @Override
             public void getPushedItem(Note note) {
                 pushedItemId = noteHolder.indexOf(note);
             }
-        });
-        list.setLayoutManager(new LinearLayoutManager(getContext(), 1, false));
+
+            @Override
+            public void onSelect(Note note) {
+                updateMenuView();
+            }
+        };
+        linearManager = new LinearLayoutManager(getContext(), 1, false);
+        list = view.findViewById(R.id.list_view);
+        emptyMessage = view.findViewById(R.id.empty_message);
+        list.setAdapter(listAdapter);
+        list.setLayoutManager(linearManager);
         registerForContextMenu(list);
         checkListVisibility();
     }
@@ -291,6 +296,10 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         noteHolder.selectNone();
+        list.setAdapter(null);
+        list.setLayoutManager(null);
+        list.setAdapter(listAdapter);
+        list.setLayoutManager(linearManager);
         updateView();
     }
 
@@ -343,6 +352,10 @@ public class ListFragment extends Fragment implements View.OnClickListener {
                 optionMenu.getItem(2).setVisible(false);
                 optionMenu.getItem(4).setVisible(false);
             }
+            if (noteHolder.isEmpty())
+                optionMenu.getItem(3).setVisible(false);
+            else
+                optionMenu.getItem(3).setVisible(true);
         }
     }
 
