@@ -37,6 +37,8 @@
             android:name=".activities.MapEditorActivity"
             android:label="@string/new_marker"
             android:parentActivityName=".activities.MainActivity"/>
+        <service android:name=".services.WeatherService"
+            android:enabled="true"/>
     </application>
 
 </manifest>

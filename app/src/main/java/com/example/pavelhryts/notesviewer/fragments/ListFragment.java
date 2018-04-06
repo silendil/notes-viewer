@@ -3,8 +3,10 @@ package com.example.pavelhryts.notesviewer.fragments;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -15,6 +17,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -38,6 +41,7 @@ import com.example.pavelhryts.notesviewer.adapters.ListAdapter;
 import com.example.pavelhryts.notesviewer.model.notes.Note;
 import com.example.pavelhryts.notesviewer.model.notes.NoteHolder;
 import com.example.pavelhryts.notesviewer.model.weather.WeatherModel;
+import com.example.pavelhryts.notesviewer.services.WeatherService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,7 +61,7 @@ import static com.example.pavelhryts.notesviewer.util.Consts.MESSAGE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ListFragment extends Fragment implements View.OnClickListener {
+public class ListFragment extends Fragment implements View.OnClickListener, WeatherService.WeatherCallback {
 
     private static final int CREATE_MESSAGE = 1;
     private RecyclerView list;
@@ -65,19 +69,32 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     private TextView emptyMessage;
     private int pushedItemId;
     private Menu optionMenu;
-    private String city = "";
-    private final String SEPARATOR = "; ";
     private final String FILENAME = "Notes.sav";
     private final String DOCUMENTS = "/Documents";
-    private boolean permissions = false;
     private ListAdapter listAdapter;
     private LinearLayoutManager linearManager;
 
     private final static String SHARED_NAME = "LIST_FRAGMENT";
     private final static String PERMISSIONS = "PERMISSIONS";
 
-    private LocationListener locationListener;
-    private LocationManager locationManager;
+    private WeatherService weatherService;
+    private boolean bound = false;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            WeatherService.ServiceBinder binder = (WeatherService.ServiceBinder) service;
+            weatherService = binder.getService();
+            weatherService.registerCallback(ListFragment.this);
+            weatherService.requestWeatherInformation();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
 
     public ListFragment() {
         // Required empty public constructor
@@ -87,17 +104,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences sf = getContext().getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE);
-        permissions = sf.getBoolean(PERMISSIONS, false);
-        if (locationListener == null)
-            locationListener = new LocListener();
-        if (locationManager == null)
-            initLocation();
-        if (permissions) {
-            locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER,
-                    3000L, 1.0F, locationListener);
-            weatherInit(getView());
-        }
+        Intent serviceIntent = new Intent(getContext(),WeatherService.class);
+        getActivity().bindService(serviceIntent,mConnection,Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -106,35 +114,23 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.list_fragment, container, false);
         noteHolder.initNotesFromDB();
         init(view);
-        checkPermissions();
         getActivity().setTitle(getString(R.string.notes));
         return view;
-    }
-
-    private void checkPermissions() {
-        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && !permissions) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
-        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        this.permissions = permissions.length != 0;
+        boolean perms = permissions.length != 0;
         if (requestCode == 100) {
             for (int grantResult : grantResults) {
                 if (grantResult != PackageManager.PERMISSION_GRANTED)
-                    this.permissions = false;
+                    perms = false;
             }
         }
-        initLocation();
-        weatherInit(getView());
-        SharedPreferences sp = getContext().getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE);
-        sp.edit().putBoolean(PERMISSIONS, this.permissions).apply();
+        weatherService.setPermissions(perms);
+        if(perms)
+            weatherService.requestWeatherInformation();
     }
 
     private void init(View view) {
@@ -156,80 +152,6 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         list.setLayoutManager(linearManager);
         registerForContextMenu(list);
         checkListVisibility();
-    }
-
-    private void initLocation() {
-        if (permissions) {
-            if (locationManager == null)
-                locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-        }
-    }
-
-    private void updateCity(Location loc) {
-        if (permissions) {
-            Geocoder geocoder = new Geocoder(getContext());
-            List<Address> list = null;
-            try {
-                if (loc != null)
-                    list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (list != null && !list.isEmpty()) {
-                Address address = list.get(0);
-                city = String.format("%s, %s", address.getLocality(), address.getCountryName());
-            }
-        }
-    }
-
-    private void weatherInit(View view) {
-        final TextView weatherView = view.findViewById(R.id.weather_view);
-        weatherView.setSelected(true);
-        if (locationManager == null)
-            initLocation();
-        if (permissions) {
-            @SuppressLint("MissingPermission") Location loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-            updateCity(loc);
-            if (loc != null) {
-                App.getApi().getData(getString(R.string.weather_key), loc.getLatitude(), loc.getLongitude())
-                        .enqueue(new Callback<WeatherModel>() {
-                            @Override
-                            public void onResponse(Call<WeatherModel> call, Response<WeatherModel> response) {
-                                String result = getString(R.string.weather_not_found);
-                                if (response.isSuccessful()) {
-                                    result = getWeatherString(response.body());
-                                }
-                                weatherView.setText(result);
-                            }
-
-                            @Override
-                            public void onFailure(Call<WeatherModel> call, Throwable t) {
-                                weatherView.setText(R.string.weather_not_found);
-                            }
-                        });
-            } else
-                weatherView.setText(R.string.weather_not_found);
-        } else {
-            weatherView.setText(R.string.weather_not_found);
-        }
-    }
-
-    private String getWeatherString(WeatherModel model) {
-        StringBuilder builder = new StringBuilder();
-        if (model != null) {
-            if (city.isEmpty())
-                city = model.getName();
-            builder.append(getString(R.string.location)).append(city).append(SEPARATOR)
-                    .append(getString(R.string.weather_string)).append(model.getWeather().get(0).getDescription())
-                    .append(SEPARATOR)
-                    .append(getString(R.string.temp)).append(model.getMain().getIntTemp()).append("\u2103")
-                    .append(SEPARATOR)
-                    .append(getString(R.string.press)).append(model.getMain().getPressure())
-                    .append(getString(R.string.press_units));
-        } else {
-            builder.append(getString(R.string.weather_not_found));
-        }
-        return builder.toString();
     }
 
     private void checkListVisibility() {
@@ -275,9 +197,11 @@ public class ListFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onStop() {
-        if (locationListener != null && locationManager != null)
-            locationManager.removeUpdates(locationListener);
         super.onStop();
+        if(bound){
+            getActivity().unbindService(mConnection);
+            bound = false;
+        }
     }
 
     public void updateView() {
@@ -471,27 +395,22 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         return path;
     }
 
-    private class LocListener implements LocationListener {
+    @Override
+    public void updateWeatherState(String weatherState) {
+        TextView weatherView = getView().findViewById(R.id.weather_view);
+        weatherView.setSelected(true);
+        weatherView.setText(weatherState);
+    }
 
-        @Override
-        public void onLocationChanged(Location location) {
-            updateCity(location);
-            weatherInit(getView());
-        }
-
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String s) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String s) {
-
+    @Override
+    public void requestPermissions() {
+        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
         }
     }
+    
 }
