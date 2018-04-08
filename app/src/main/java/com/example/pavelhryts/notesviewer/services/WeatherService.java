@@ -50,6 +50,7 @@ public class WeatherService extends Service implements LocListener.LocationCallb
             checkPermissions();
     }
 
+
     private void checkPermissions() {
         if (!permissions && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -82,8 +83,6 @@ public class WeatherService extends Service implements LocListener.LocationCallb
     public IBinder onBind(Intent intent) {
         if(permissions)
             initLocManager();
-        else
-            checkPermissions();
         return binder;
     }
 
@@ -176,6 +175,7 @@ public class WeatherService extends Service implements LocListener.LocationCallb
     @Override
     public boolean onUnbind(Intent intent) {
         releaseLocManager();
+        callback = null;
         return super.onUnbind(intent);
     }
 
@@ -186,6 +186,7 @@ public class WeatherService extends Service implements LocListener.LocationCallb
     private void releaseLocManager() {
         if (locListener != null && locManager != null)
             locManager.removeUpdates(locListener);
+        locListener = null;
     }
 
     public class ServiceBinder extends Binder {

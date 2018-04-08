@@ -14,8 +14,10 @@ public class LocListener implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        callback.updateCity(location);
-        callback.updateWeather(location);
+        if(callback != null) {
+            callback.updateCity(location);
+            callback.updateWeather(location);
+        }
     }
 
     @Override
