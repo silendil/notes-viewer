@@ -83,8 +83,8 @@ public abstract class ListViewHolder extends RecyclerView.ViewHolder implements 
     }
 
     private void setSelected(boolean value) {
-        card.setSelected(value);
         note.setSelected(value);
+        card.setChecked(value);
     }
 
     public interface SelectListener {

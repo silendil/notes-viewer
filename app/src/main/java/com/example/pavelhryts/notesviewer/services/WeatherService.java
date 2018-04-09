@@ -15,7 +15,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 import com.example.pavelhryts.notesviewer.App;
 import com.example.pavelhryts.notesviewer.R;
@@ -23,11 +22,22 @@ import com.example.pavelhryts.notesviewer.model.weather.WeatherModel;
 import com.example.pavelhryts.notesviewer.util.handlers.LocListener;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.example.pavelhryts.notesviewer.util.Consts.CLEAR_NIGHT;
+import static com.example.pavelhryts.notesviewer.util.Consts.WEATHER_CLOUDY;
+import static com.example.pavelhryts.notesviewer.util.Consts.WEATHER_DRIZZLE;
+import static com.example.pavelhryts.notesviewer.util.Consts.WEATHER_FOGGY;
+import static com.example.pavelhryts.notesviewer.util.Consts.WEATHER_RAINY;
+import static com.example.pavelhryts.notesviewer.util.Consts.WEATHER_SNOWY;
+import static com.example.pavelhryts.notesviewer.util.Consts.WEATHER_SUNNY;
+import static com.example.pavelhryts.notesviewer.util.Consts.WEATHER_THUNDER;
 
 
 public class WeatherService extends Service implements LocListener.LocationCallback {
@@ -41,6 +51,7 @@ public class WeatherService extends Service implements LocListener.LocationCallb
     private final static String SHARED_NAME = "LIST_FRAGMENT";
     private final static String PERMISSIONS = "PERMISSIONS";
     private final String SEPARATOR = "; ";
+    private final String MINOR_SEPARATOR = " ";
 
     private boolean permissions = false;
 
@@ -49,7 +60,6 @@ public class WeatherService extends Service implements LocListener.LocationCallb
         if(!permissions)
             checkPermissions();
     }
-
 
     private void checkPermissions() {
         if (!permissions && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -157,14 +167,28 @@ public class WeatherService extends Service implements LocListener.LocationCallb
     private String getWeatherString(WeatherModel model) {
         StringBuilder builder = new StringBuilder();
         if (model != null) {
+            if(!model.isIconsInited()){
+                Map<String, String> icons = new HashMap<>();
+                icons.put(WEATHER_SUNNY,getString(R.string.weather_sunny));
+                icons.put(CLEAR_NIGHT,getString(R.string.weather_clear_night));
+                icons.put(WEATHER_THUNDER,getString(R.string.weather_thunder));
+                icons.put(WEATHER_DRIZZLE,getString(R.string.weather_drizzle));
+                icons.put(WEATHER_RAINY,getString(R.string.weather_rainy));
+                icons.put(WEATHER_SNOWY,getString(R.string.weather_snowy));
+                icons.put(WEATHER_FOGGY,getString(R.string.weather_foggy));
+                icons.put(WEATHER_CLOUDY,getString(R.string.weather_cloudy));
+                model.initIcons(icons);
+            }
             if (city.isEmpty())
                 city = model.getName();
-            builder.append(getString(R.string.location)).append(city).append(SEPARATOR)
-                    .append(getString(R.string.weather_string)).append(model.getWeather().get(0).getDescription())
+            builder.append(getString(R.string.location)).append(MINOR_SEPARATOR).append(city).append(SEPARATOR)
+                    .append(getString(R.string.weather_string)).append(MINOR_SEPARATOR)
+                    .append(model.getWeather().get(0).getDescription(model.isDay()))
                     .append(SEPARATOR)
-                    .append(getString(R.string.temp)).append(model.getMain().getIntTemp()).append("\u2103")
+                    .append(getString(R.string.temp)).append(MINOR_SEPARATOR)
+                    .append(model.getMain().getIntTemp()).append("\u2103")
                     .append(SEPARATOR)
-                    .append(getString(R.string.press)).append(model.getMain().getPressure())
+                    .append(getString(R.string.press)).append(MINOR_SEPARATOR).append(model.getMain().getPressure())
                     .append(getString(R.string.press_units));
         } else {
             builder.append(getString(R.string.weather_not_found));

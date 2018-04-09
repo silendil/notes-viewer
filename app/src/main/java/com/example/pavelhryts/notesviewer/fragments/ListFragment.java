@@ -7,13 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -40,7 +35,6 @@ import com.example.pavelhryts.notesviewer.activities.MessageActivity;
 import com.example.pavelhryts.notesviewer.adapters.ListAdapter;
 import com.example.pavelhryts.notesviewer.model.notes.Note;
 import com.example.pavelhryts.notesviewer.model.notes.NoteHolder;
-import com.example.pavelhryts.notesviewer.model.weather.WeatherModel;
 import com.example.pavelhryts.notesviewer.services.WeatherService;
 
 import java.io.File;
@@ -51,11 +45,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import static android.content.Context.LOCATION_SERVICE;
 import static com.example.pavelhryts.notesviewer.util.Consts.MESSAGE;
 
 /**
@@ -73,6 +62,8 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
     private final String DOCUMENTS = "/Documents";
     private ListAdapter listAdapter;
     private LinearLayoutManager linearManager;
+
+    private Typeface weatherFont;
 
     private final static String SHARED_NAME = "LIST_FRAGMENT";
     private final static String PERMISSIONS = "PERMISSIONS";
@@ -95,6 +86,11 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
             bound = false;
         }
     };
+
+    private void initFonts(TextView weatherTextView) {
+        weatherFont = Typeface.createFromAsset(getActivity().getAssets(), "fonts/weather.ttf");
+        weatherTextView.setTypeface(weatherFont);
+    }
 
     public ListFragment() {
         // Required empty public constructor
@@ -310,6 +306,10 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
 
     private void clearNotes() {
         noteHolder.clearNotes();
+        list.setAdapter(null);
+        list.setLayoutManager(null);
+        list.setAdapter(listAdapter);
+        list.setLayoutManager(linearManager);
         updateView();
     }
 
@@ -397,9 +397,12 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
 
     @Override
     public void updateWeatherState(String weatherState) {
-        TextView weatherView = getView().findViewById(R.id.weather_view);
-        weatherView.setSelected(true);
-        weatherView.setText(weatherState);
+        if(getView() != null) {
+            TextView weatherView = getView().findViewById(R.id.weather_view);
+            weatherView.setSelected(true);
+            initFonts(weatherView);
+            weatherView.setText(weatherState);
+        }
     }
 
     @Override
@@ -412,5 +415,5 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
                     Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
         }
     }
-    
+
 }

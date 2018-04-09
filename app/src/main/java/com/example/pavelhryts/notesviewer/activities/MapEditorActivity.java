@@ -48,8 +48,8 @@ public class MapEditorActivity extends AppCompatActivity {
         Intent intent = getIntent();
         latitudeValue = intent.getDoubleExtra(LATITUDE,0d);
         longitudeValue = intent.getDoubleExtra(LONGITUDE,0d);
-        latitude.setText(String.format(Locale.ENGLISH,"%f",latitudeValue));
-        longitude.setText(String.format(Locale.ENGLISH,"%f",longitudeValue));
+        latitude.setText(String.format(Locale.getDefault().getDisplayLanguage(),"%f",latitudeValue));
+        longitude.setText(String.format(Locale.getDefault().getDisplayLanguage(),"%f",longitudeValue));
     }
 
     @Override

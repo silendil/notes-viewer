@@ -1,7 +1,10 @@
 
 package com.example.pavelhryts.notesviewer.model.weather;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -34,6 +37,18 @@ public class WeatherModel {
     @SerializedName("name")
     @Expose
     private String name;
+
+    public boolean isIconsInited(){
+        for(Weather weatherItem : weather)
+            if(!weatherItem.isIconsInited())
+                return false;
+        return true;
+    }
+
+    public void initIcons(Map<String, String> icons){
+        for(Weather weatherItem : weather)
+            weatherItem.initIcons(icons);
+    }
 
     public List<Weather> getWeather() {
         return weather;
@@ -105,5 +120,10 @@ public class WeatherModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isDay(){
+        long currentTime = new Date().getTime();
+        return currentTime >= sys.getSunrise() * 1000L && currentTime < sys.getSunset() * 1000L;
     }
 }

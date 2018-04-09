@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Просмотр заметок</string>
+
+    <string name="navigation_drawer_open">Открыть панель навигации</string>
+    <string name="navigation_drawer_close">Закрыть панель навигации</string>
+
+    <string name="action_settings">Настройк</string>
+    <string name="submit_changes">Подтвердить</string>
+    <string name="note_body">тело заметки</string>
+    <string name="note_title">заголовок заметки</string>
+    <string name="edit_message">редактировать сообщение</string>
+    <string name="new_message">Новое сообщение</string>
+    <string name="clear_notes">Очистить заметки</string>
+    <string name="delete_message">удалить заметку</string>
+    <string name="clear_selection">Отменить выделение</string>
+    <string name="owner">Павел Гриц</string>
+    <string name="show_message">показать сообщение</string>
+    <string name="empty">ПУСТО</string>
+    <string name="notes">Заметки</string>
+    <string name="about">О приложении</string>
+    <string name="navigation">Навигация</string>
+    <string name="places">Места</string>
+    <string name="test_caption">Тестовое приложение Android</string>
+    <string name="written_by">Написано Павлом Грицем, 2018</string>
+    <string name="my_position">Мои координаты</string>
+    <string name="add_new_place">Добавить новое место</string>
+    <string name="latitude">Широта:</string>
+    <string name="longitude">Долгота:</string>
+    <string name="title">Заголовок:</string>
+    <string name="input_title">введите заголовок</string>
+    <string name="submit">Подтвердить</string>
+    <string name="new_marker">добавить новый маркер</string>
+    <string name="feedback_title">Введите ваше сообщение</string>
+    <string name="send">Отправить сообщение</string>
+    <string name="feedback">Обратная связь</string>
+    <string name="location">Местоположение: </string>
+    <string name="weather_string">Погода: </string>
+    <string name="temp">Температура: </string>
+    <string name="press">Давление: </string>
+    <string name="press_units">гПа</string>
+    <string name="weather_not_found">Данные о погоде не найдены</string>
+    <string name="required">Поле обязательно</string>
+    <string name="feedback_fragment_title">Обратная связь</string>
+    <string name="create_marker_title">Добавить новый маркер?</string>
+    <string name="positive">Да</string>
+    <string name="negative">Нет</string>
+</resources>
