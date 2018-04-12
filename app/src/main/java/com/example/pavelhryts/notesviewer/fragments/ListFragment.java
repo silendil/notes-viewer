@@ -3,6 +3,7 @@ package com.example.pavelhryts.notesviewer.fragments;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -27,9 +28,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.example.pavelhryts.notesviewer.App;
+import com.example.pavelhryts.notesviewer.NoteWidget;
 import com.example.pavelhryts.notesviewer.R;
 import com.example.pavelhryts.notesviewer.activities.MessageActivity;
 import com.example.pavelhryts.notesviewer.adapters.ListAdapter;
@@ -204,6 +207,12 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
         list.getAdapter().notifyDataSetChanged();
         updateMenuView();
         checkListVisibility();
+        Intent intent = new Intent(getContext(), NoteWidget.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(getActivity().getApplication())
+                .getAppWidgetIds(new ComponentName(getActivity().getApplication(), NoteWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
+        getActivity().sendBroadcast(intent);
     }
 
     private void showMessageEditor(int index) {

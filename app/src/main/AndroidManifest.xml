@@ -8,13 +8,13 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".App">
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
@@ -32,13 +32,28 @@
         <activity
             android:name=".activities.MessageActivity"
             android:label="@string/edit_message"
-            android:parentActivityName=".activities.MainActivity"/>
+            android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.MapEditorActivity"
             android:label="@string/new_marker"
-            android:parentActivityName=".activities.MainActivity"/>
-        <service android:name=".services.WeatherService"
-            android:enabled="true"/>
+            android:parentActivityName=".activities.MainActivity" />
+
+        <service
+            android:name=".services.WeatherService"
+            android:enabled="true" />
+        <service android:name=".services.NotesWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <receiver android:name=".NoteWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.WIDGET_BUTTON" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_info_info" />
+        </receiver>
     </application>
 
 </manifest>
