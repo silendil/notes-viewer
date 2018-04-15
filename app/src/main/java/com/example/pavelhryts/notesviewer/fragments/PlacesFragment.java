@@ -150,17 +150,8 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
     public void onMapLongClick(final LatLng latLng) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(R.string.create_marker_title);
-        builder.setPositiveButton(R.string.positive, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                showMarkerEditor(latLng);
-            }
-        }).setNegativeButton(R.string.negative, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        }).show();
+        builder.setPositiveButton(R.string.positive, (dialogInterface, i) -> showMarkerEditor(latLng))
+                .setNegativeButton(R.string.negative, (dialogInterface, i) -> {}).show();
     }
 
     private void showMarkerEditor(LatLng latLng) {

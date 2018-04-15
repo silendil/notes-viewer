@@ -28,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
@@ -144,7 +145,7 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
                 updateMenuView();
             }
         };
-        linearManager = new LinearLayoutManager(getContext(), 1, false);
+        linearManager = new LinearLayoutManager(getContext(), LinearLayout.VERTICAL, false);
         list = view.findViewById(R.id.list_view);
         emptyMessage = view.findViewById(R.id.empty_message);
         list.setAdapter(listAdapter);
@@ -166,24 +167,21 @@ public class ListFragment extends Fragment implements View.OnClickListener, Weat
     private void showPopupMenu(View view) {
         PopupMenu menu = new PopupMenu(getContext(), view);
         menu.inflate(R.menu.popup_menu);
-        menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.add_message_popup:
-                        showMessageEditor(-1);
-                        break;
-                    case R.id.clear_notes_popup:
-                        noteHolder.clearNotes();
-                        updateView();
-                        break;
-                    case R.id.clear_selection_popup:
-                        noteHolder.selectNone();
-                        updateView();
-                        break;
-                }
-                return false;
+        menu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.add_message_popup:
+                    showMessageEditor(-1);
+                    break;
+                case R.id.clear_notes_popup:
+                    noteHolder.clearNotes();
+                    updateView();
+                    break;
+                case R.id.clear_selection_popup:
+                    noteHolder.selectNone();
+                    updateView();
+                    break;
             }
+            return false;
         });
         menu.show();
     }
